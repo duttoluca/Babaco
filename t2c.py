@@ -76,6 +76,7 @@ class Task:
 class Prepare:
   tasks = {}
   name = ""
+  best_time = 999
   
   def __init__ (self, n):
     self.name = n
@@ -196,13 +197,12 @@ class Prepare:
       
       for i in _time:
         # we search a better place
-        if (i > first_possible_time) and (v.isPlacable (_time[i])):
+        if (i > first_possible_time) and (v.isPlacable (_time[i])): # can be optimized?
           # if at some point we can place it next to an already placed task, we do it
           # problem here. We assume that if a task if placable at beginning, it will be always placable
           if (to_place == _last):
             to_place = i
       
-#      print "verifying if " + repr(v.name) + " is placable [[" + repr(v.parent) + "]]"
       if v.isUsableMulti (_used, to_place):
         # actual placing: we put a reference to the task for each minute of the preparation
         for i in range (v.time):
@@ -214,63 +214,26 @@ class Prepare:
         del _tasks [k]
         _used[k] = to_place + i
         
-        # debug
-#        self.out (_time, _used)
-#        print "Added " + repr(v.name)
-#        raw_input('Press Enter')
-
         # we can continue with the next task ..
         self.useTaskMulti (_tasks, _used, _time, _best, _best_time)
         
-        # backtrace: we remove the task from the preparation
-#        print v.parent
-#        print _used
-#        print "\n\n\n 	vvvvvvvvvvvvvvvv"
-#        for x,i in _tasks.items():
-#          print i.id
-#          print i.name
-#          if i.parent != -1:
-#            print "[[" + i.parent.name + "]]"
-#          print "-\n"
-        
+        # backtrace: we remove the task from the preparation        
         for i in range (v.time):
           _time[to_place + i].remove(v)
           if len(_time[to_place + i]) == 0:
             del _time[to_place + i]
         _tasks[k] = v
         del _used[k]
-
-
-#        print "================================== added " + v.name
-
-#        print "\n"
-#        for x,i in _tasks.items():
-#          print i.id
-#          print i.name
-#          if i.parent != -1:
-#            print "[[" + i.parent.name + "]]"
-#          print "---"
-#        raw_input('ok');  
-        
-#        for i,x in _tasks.items():
-#          if x.parent != -1:
-#            print x.name + "  <--  " + x.parent.name
-#          else:
-#            print x.name
-          
-        # debug
-#        self.out (_time, _used)
-#        print "Removed " + repr(v.name)
-#        raw_input('Press Enter')
     
     # did we finish?
     if (len(_tasks)==0):
-      if len(_time) < _best_time:
+      print "best " + repr(len(_time	)) + " -- "  + repr (self.best_time)
+      if len(_time) < self.best_time:
         _best = _time.copy()
-        _best_time = len(_best)
+        self.best_time = len(_time)
         
         self.out (_best, _used)
-        print "========= finished in " + repr(len(_best))
+        print "========= Finished in " + repr(len(_best))
         raw_input('Press Enter for next scheduling')
   
   def scheduleMulti (self):

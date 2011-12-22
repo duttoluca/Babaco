@@ -130,6 +130,42 @@ class Prepare:
     available_tasks = self.tasks
     self.useTask (available_tasks, {}, time, 0)
 
+  def html (self, _time, _tasks):
+    print "<div class='preparation'>"
+
+    for t_id, t_stop in _tasks.items():
+      # (1) for each task used ...
+      before = 0
+      after = 0
+      duration = 0
+      found = False
+      
+      for k,v in _time.items():
+        # (2) for each minute of the preparation ...
+        # k is the minute, v the list of task scheduled at that minute
+
+        if k > t_stop:
+          # after the task finishes
+          after = after + 1
+      
+        for t in v: # BUGS HERE
+          # (3) for each task scheduled in that minute ...
+          if t.id == t_id:
+            # (4) if the task scheduled is the task considered at (1) ...
+            # during the task schedule
+            found = True
+            name = t.name
+            duration = t.time
+
+        if not found:
+          # before the task starts ...
+          before = before + 1
+
+      print "<div class='before span"+repr(before)+"'/>" + "<div class='duration span"+repr(duration)+"'>" + name + "</div>" + "<div class='after span"+repr(after)+"'/>"
+
+          
+    print "</div> <!-- preparation -->"
+
   def out (self, _time, _tasks):
     print "\n vvvvvvvvvvv"
     for t_id, t_start in _tasks.items():
@@ -176,65 +212,69 @@ class Prepare:
     # backup for backtrace
     _time_old = _time.copy()
     _tasks_old = _tasks.copy()
+
+    if len(_time) < self.best_time:
     
-    for k,v in _tasks.items():
-      # for each not used yet tasks
-      
-      # at worst we put the task at the end of the current preparation
-      _last = len(_time)
-      to_place = _last
-
-      first_possible_time = 0
-      # searching when its parents finish
-      for p_time, p_val_list in _time.items():
-
-        for p_val in p_val_list:
-          if p_val == v.parent:
-            first_possible_time = p_time
-
-      if first_possible_time == 0:
-        first_possible_time = -1 # dirty hack, find a better solution
-      
-      for i in _time:
-        # we search a better place
-        if (i > first_possible_time) and (v.isPlacable (_time[i])): # can be optimized?
-          # if at some point we can place it next to an already placed task, we do it
-          # problem here. We assume that if a task if placable at beginning, it will be always placable
-          if (to_place == _last):
-            to_place = i
-      
-      if v.isUsableMulti (_used, to_place):
-        # actual placing: we put a reference to the task for each minute of the preparation
-        for i in range (v.time):
-          if not (to_place + i) in _time.keys(): # this is ugly, can we do it better?
-            _time[to_place + i] = []
-          _time[to_place + i].append(v)
+      for k,v in _tasks.items():
+        # for each not used yet tasks
         
-        # we have allocated the task, so we make it not available
-        del _tasks [k]
-        _used[k] = to_place + i
+        # at worst we put the task at the end of the current preparation
+        _last = len(_time)
+        to_place = _last
+
+        first_possible_time = 0
+        # searching when its parents finish
+        for p_time, p_val_list in _time.items():
+
+          for p_val in p_val_list:
+            if p_val == v.parent:
+              first_possible_time = p_time
+
+        if first_possible_time == 0:
+          first_possible_time = -1 # dirty hack, find a better solution
         
-        # we can continue with the next task ..
-        self.useTaskMulti (_tasks, _used, _time, _best, _best_time)
+        for i in _time:
+          # we search a better place
+          if (i > first_possible_time) and (v.isPlacable (_time[i])): # can be optimized?
+            # if at some point we can place it next to an already placed task, we do it
+            # problem here. We assume that if a task if placable at beginning, it will be always placable
+            if (to_place == _last):
+              to_place = i
         
-        # backtrace: we remove the task from the preparation        
-        for i in range (v.time):
-          _time[to_place + i].remove(v)
-          if len(_time[to_place + i]) == 0:
-            del _time[to_place + i]
-        _tasks[k] = v
-        del _used[k]
+        if v.isUsableMulti (_used, to_place):
+          # actual placing: we put a reference to the task for each minute of the preparation
+          for i in range (v.time):
+            if not (to_place + i) in _time.keys(): # this is ugly, can we do it better?
+              _time[to_place + i] = []
+            _time[to_place + i].append(v)
+          
+          # we have allocated the task, so we make it not available
+          del _tasks [k]
+          _used[k] = to_place + i
+          
+          # we can continue with the next task ..
+          self.useTaskMulti (_tasks, _used, _time, _best, _best_time)
+          
+          # backtrace: we remove the task from the preparation        
+          for i in range (v.time):
+            _time[to_place + i].remove(v)
+            if len(_time[to_place + i]) == 0:
+              del _time[to_place + i]
+          _tasks[k] = v
+          del _used[k]
+#    else:
+#      print "Optimizing out because " + repr (len(_time)) + " > " + repr( self.best_time)
     
     # did we finish?
     if (len(_tasks)==0):
-      print "best " + repr(len(_time	)) + " -- "  + repr (self.best_time)
       if len(_time) < self.best_time:
         _best = _time.copy()
         self.best_time = len(_time)
         
         self.out (_best, _used)
+        self.html (_best, _used)
         print "========= Finished in " + repr(len(_best))
-        raw_input('Press Enter for next scheduling')
+#        raw_input('Press Enter for next scheduling')
   
   def scheduleMulti (self):
     available_tasks = self.tasks

@@ -1,0 +1,40 @@
+ROADMAP
+1. visualizzazione ricette
+2. db ricette
+   2.1 inserimento manuale
+   2.2 editor ricette
+3. merge ricette ottimizzate (!)
+4. pianificazione pranzo/cena
+5. cucina di una settimana
+
+TODO (non ordinati)
+
+- trasformazione task ricetta
+
+- ordinamento task
+   - prima task lunghi e semplici
+
+- parent multipli
+
+- altri vincoli per non schedulare T
+   - parent multipli
+   - ...
+
+- accorpamento microT collegati
+
+- accorpamento T collegati con attenzione > M
+
+- spezzamento T accorpati
+
+- tipologia T e conseguente visualizzazione
+   - e.g. pulizia verdure => verde
+          tagliare carne => rosso
+
+- algoritmo furbo per ricetta (!)
+   - e.g. 1. accorpamento
+          2. ordinamento
+          3. branch & bound
+          4. spezzettamento
+
+- determinazione automatica dell'attenzione di T
+   - e.g. lungo tempo e cottura => attenzione bassa

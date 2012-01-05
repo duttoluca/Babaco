@@ -38,3 +38,7 @@ TODO (non ordinati)
 
 - determinazione automatica dell'attenzione di T
    - e.g. lungo tempo e cottura => attenzione bassa
+
+- integrazione con django
+
+- upload su appengine

@@ -2,6 +2,7 @@
 
 from string import *
 
+# Factory design pattern.
 class Factory:
   last_id = 0
   
@@ -13,6 +14,7 @@ class Factory:
     self.last_id = self.last_id + 1
     return id
 
+# Task class. This is a single task of a recipe.
 class Task:
   name = ""
   parent = -1
@@ -25,7 +27,7 @@ class Task:
     self.id = f.getId()
     self.name = n
     self.time = t
-    self.attention = a
+    self.attention = a # the attention indicates how difficult a task is (e.g., cutting vegetables is more difficul than boiling water)
     self.parent = p
   
   def toString(self):
@@ -34,32 +36,33 @@ class Task:
     else:
       print "(%d) %s: %d min at %d after %s" % (self.id, self.name, self.time, self.attention, self.parent.name)
 
+  # returns True if the parent has already been scheduled.
   def isUsable (self, _used):
     if self.parent != -1:
       if not self.parent.id in _used:
         return False
     
     return True
-
+  
+  # returns True if the parent has already been scheduled.
+  # This works with the multi version.
   def isUsableMulti (self, _used, now):
-#    print "considering " + repr (self.name) + " [[ "+repr(self.parent)+" ]]",
     if self.parent != -1:
       if self.parent.id in _used:
-#        print " \t\t parent " + self.parent.name + " finishes at: " + repr(_used[self.parent.id]) + " \t\t can we place at " + repr(now) + "?",
         if _used[self.parent.id] > now:
-#          print "   NO!"
           return False
         else:
-#          print "   YES!"
           return True
       else:
         return False
-#    print "\t no parent, we can place it at " + repr(now)
     return True
-  
+
+  # returns true if the task can be scheduled at position _time
+  # (basically this checks if there is enough free attention left in _time)
   def isPlacable (self, _time,):
     _total_attention = 0
-        
+
+    # computing the attention that would be required with this task
     if _time:
       for v in _time:
         _total_attention += v.attention
@@ -69,18 +72,20 @@ class Task:
     
     return False
     
-
+  # output helper
   def __repr__(self):
     return repr(self.id)
-    
+
+# This is the whole recipe
 class Prepare:
   tasks = {}
   name = ""
   best_time = 999
-  
+
+  # Helpers.
   def __init__ (self, n):
     self.name = n
-    
+  
   def addTask (self, t):
     self.tasks[t.id] = t
   
@@ -88,49 +93,13 @@ class Prepare:
     print "-- %s --" % (self.name)
     for t in self.tasks:
       self.tasks[t].toString()
-  
-  def schedule (self):
-    total_time = 0
 
-    for t in self.tasks:
-      total_time += self.tasks[t].time
-    
-    print total_time
-  
-  
-  def useTask (self, _tasks, _used, time, step):
-    for k,v in _tasks.items():
-      # Move task form available to used
-      if v.isUsable (_used):
-        _used [step] = v
-        time += v.time
-        del _tasks [k]
-  
-        # If we finished the available tasks, we print the procedure
-        if not _tasks:
-#          print "(step %d) -- finished in %d" % (step, time)
-          for k1,v1 in _used.items():
-            print v1.name
-#          print "----------------- "
-        # otherwise, we recurse
-        else:
-
-          step += 1
-          self.useTask(_tasks, _used, time, step)
-          step -= 1
-      
-        # backtrace
-        _tasks [k] = v
-        time -= v.time
-        del _used [step]
-  
-  def scheduleAll (self):
-    time = 0
-    used_tasks = {}
-    available_tasks = self.tasks
-    self.useTask (available_tasks, {}, time, 0)
-
+  # Output helpers
   def html (self, _time, _tasks):
+    total = len(_time)
+
+    # header of the preparation
+    print "<div class='title'> Total preparation time " + repr(total) + " minutes</div>"
     print "<div class='preparation'>"
 
     for t_id, t_stop in _tasks.items():
@@ -161,9 +130,14 @@ class Prepare:
           # before the task starts ...
           before = before + 1
 
-      print "<div class='before span"+repr(before)+"'/>" + "<div class='duration span"+repr(duration)+"'>" + name + "</div>" + "<div class='after span"+repr(after)+"'/>"
+      before = (before * 100) / total
+      duration = (duration * 100) / total
+      after = (after * 100) / total
 
-          
+      # single task output
+      print "<div class='row'><div class='before bbspan"+repr(before)+"'></div>" + "<div class='duration bbspan"+repr(duration)+"'>" + name + "</div>" + "<div class='after bbspan"+repr(after)+"'></div></div>"
+
+    # footer of the preparation
     print "</div> <!-- preparation -->"
 
   def out (self, _time, _tasks):
@@ -208,6 +182,52 @@ class Prepare:
     print "^^^^^^^^^^^"
 
 
+
+  # core methods
+  def schedule (self):
+    total_time = 0
+
+    for t in self.tasks:
+      total_time += self.tasks[t].time
+    
+    print total_time
+  
+  def useTask (self, _tasks, _used, time, step):
+    for k,v in _tasks.items():
+      # Move task form available to used
+      if v.isUsable (_used):
+        _used [step] = v
+        time += v.time
+        del _tasks [k]
+  
+        # If we finished the available tasks, we print the procedure
+        if not _tasks:
+          for k1,v1 in _used.items():
+            print v1.name
+        # otherwise, we recurse
+        else:
+          step += 1
+          self.useTask(_tasks, _used, time, step)
+          step -= 1
+      
+        # backtrace
+        _tasks [k] = v
+        time -= v.time
+        del _used [step]
+  
+  def scheduleAll (self):
+    time = 0
+    used_tasks = {}
+    available_tasks = self.tasks
+    self.useTask (available_tasks, {}, time, 0)
+
+
+
+  # Compute the allocation for the recipe
+  # _tasks are the available (not used yet) tasks
+  # _used are the task already used
+  # _time is a dictionary that contains an entry per minute of the preparation. Each entry is a list with the task allocated in that minute
+  # _best and _best_time are the current best preparation
   def useTaskMulti (self, _tasks, _used, _time, _best, _best_time):
     # backup for backtrace
     _time_old = _time.copy()
@@ -215,15 +235,13 @@ class Prepare:
 
     if len(_time) < self.best_time:
     
-      for k,v in _tasks.items():
-        # for each not used yet tasks
-        
+      for k,v in _tasks.items(): # for each not used yet tasks ...
         # at worst we put the task at the end of the current preparation
         _last = len(_time)
         to_place = _last
 
         first_possible_time = 0
-        # searching when its parents finish
+        # searching when its parent finishes
         for p_time, p_val_list in _time.items():
 
           for p_val in p_val_list:
@@ -262,8 +280,6 @@ class Prepare:
               del _time[to_place + i]
           _tasks[k] = v
           del _used[k]
-#    else:
-#      print "Optimizing out because " + repr (len(_time)) + " > " + repr( self.best_time)
     
     # did we finish?
     if (len(_tasks)==0):
@@ -325,6 +341,8 @@ r.addTask (t2)
 r.addTask (t3)
 r.addTask (t4)
 r.addTask (t5)
+
+"""
 r.addTask (t6)
 r.addTask (t7)
 r.addTask (t8)
@@ -333,10 +351,7 @@ r.addTask (t10)
 r.addTask (t11)
 r.addTask (t12)
 r.addTask (t13)
-
-#r.toString()
-
-#r.schedule()
+"""
 
 r.scheduleMulti()
 

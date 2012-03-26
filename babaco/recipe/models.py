@@ -7,7 +7,7 @@ class Recipe(models.Model):
     is_active = models.BooleanField(default = True)
     ins_date = models.DateTimeField(auto_now_add = True, verbose_name = 'Data inserimento')
     # prevediamo una fotina per la ricetta? Per ora solo un placeholder, bisogna installare PIL e impostare upload
-    #image = models.ImageField(upload_to="", verbose_name = 'Data inserimento')
+    #image = models.ImageField(upload_to="", verbose_name = 'Immagine Main Ricetta')
     image = None
     
     class Meta:

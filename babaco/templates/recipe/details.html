@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load webdesign %}
+
+
+{% block title%}Dettaglio ricetta{% endblock %}
+
+
+{% block content%}
+<h1>{{ req.name }}</h1>
+<p>Inserita in data {{ req.ins_date|date:"d/m/Y G:i:s" }}</p>
+<p>Descrizione:</br>
+{{ req.description }}
+
+{% if tasks %}
+	<p> Task correlati </br>
+	{% for t in tasks %}
+		<p> Task {{ t.name }}
+	{% endfor %}
+{% endif %}
+
+
+{% lorem 5 p %}
+{% endblock %} 

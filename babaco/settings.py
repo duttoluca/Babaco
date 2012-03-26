@@ -4,6 +4,9 @@ import os
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+#rendiamo portabile la cartella templates
+DIRNAME = os.path.dirname(__file__)
+
 #fondamentale per caratteri latini accentati!
 FILE_CHARSET = 'ISO-8859-1'
 
@@ -105,9 +108,6 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'babaco.urls'
-
-#rendiamo portabile la cartella templates
-DIRNAME = os.path.dirname(__file__)
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".

@@ -1,7 +1,11 @@
 # Django settings for babaco project.
+import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+#fondamentale per caratteri latini accentati!
+FILE_CHARSET = 'ISO-8859-1'
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -102,10 +106,15 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'babaco.urls'
 
+#rendiamo portabile la cartella templates
+DIRNAME = os.path.dirname(__file__)
+
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    #'C:\\Users\\luca.dutto\\workspace\\babaco\\src\\babaco\\templates',
+    os.path.join(DIRNAME,'templates'),
 )
 
 INSTALLED_APPS = (
@@ -120,6 +129,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
+    'south',
+    'django.contrib.webdesign',
 )
 
 # A sample logging configuration. The only tangible logging

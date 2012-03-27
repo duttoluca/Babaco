@@ -42,11 +42,11 @@ class Task(models.Model):
     def __unicode__(self):
         return "%s" % (self.name)
     
-    def _hasParents(self):
+    @property
+    def hasParents(self):
         if self.parents.count() > 0:
             return True
         return False
-    
-    hasParents = property(_hasParents)
+
 
     

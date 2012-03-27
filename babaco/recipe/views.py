@@ -15,6 +15,5 @@ def index(request):
 
 def recipeDetails(request, recipe):
     r = get_object_or_404(Recipe, pk=int(recipe))
-    #prendo grezzamente tutti i task riferiti alla ricetta passando dalla foreign key inversa
-    t = r.task_set.all()
-    return render_to_response('recipe/recipe_details.html', {'req': r , 'tasks': t}, context_instance = RequestContext(request) )
+    return render_to_response('recipe/recipe_details.html', {'recipe': r }, context_instance = RequestContext(request) )
+

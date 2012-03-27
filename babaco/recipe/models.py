@@ -24,7 +24,8 @@ class Recipe(models.Model):
 
 class Task(models.Model):
     recipe = models.ForeignKey(Recipe, verbose_name = 'Ricetta')
-    parent = models.ForeignKey('self', blank=True, null=True, verbose_name = 'Task padre')
+    #parent = models.ForeignKey('self', blank=True, null=True, verbose_name = 'Task padre')
+    parents = models.ManyToManyField('self', blank=True, null=True, verbose_name = 'Task padri', symmetrical = False)
     name = models.CharField(max_length=200, verbose_name = 'Nome task')
     description = models.TextField(blank = True, max_length = 4000, verbose_name = 'Descrizione task' )
     # ipotizzo 360 minuti max per il singolo task
@@ -38,21 +39,14 @@ class Task(models.Model):
     # questo campo non fa nulla
     MAX_ATTENTION = 100 
 
-#    def __init__(self, task_id, name, time, attention, parent=-1):
-#        self.name = name
-#        self.task_id = task_id
-#        self.time = int(time)
-#        if attention > self.MAX_ATTENTION:
-#            attention = self.MAX_ATTENTION
-#        elif attention < 0:
-#            attention = 0
-#        self.attention = int(attention)
-#        self.parent = parent
-#        self.startTime = -1
-#        self.stopTime = -1
-#        self.active = 1
-
     def __unicode__(self):
-        if not self.parent:
-            return "%s" % (self.name)
-        return "%s figlio di %s" % (self.name, self.parent.name)
+        return "%s" % (self.name)
+    
+    def _hasParents(self):
+        if self.parents.count() > 0:
+            return True
+        return False
+    
+    hasParents = property(_hasParents)
+
+    

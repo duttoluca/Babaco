@@ -1,23 +1,22 @@
 {% extends "base.html" %}
-{% load webdesign %}
-
 
 {% block title%}Dettaglio ricetta{% endblock %}
 
-
 {% block content%}
-<h1>{{ req.name }}</h1>
-<p>Inserita in data {{ req.ins_date|date:"d/m/Y G:i:s" }}</p>
+<h1>{{ recipe.name }}</h1>
+<p>Inserita in data {{ recipe.ins_date|date:"d/m/Y G:i:s" }}</p>
 <p>Descrizione:</br>
-{{ req.description }}
+{{ recipe.description }}
 
-{% if tasks %}
-	<p> Task correlati </br>
-	{% for t in tasks %}
-		<p> Task {{ t.name }}
+<p> Task padri </br>
+<ul>
+{%  for task in recipe.task_set.all %}
+	<li>Task  xxx {{ task.name }}</li>
+	<ul>
+	{% for parent in task.parents.all %}
+		<li>Task  padre {{ parent.name }}</li>
 	{% endfor %}
-{% endif %}
-
-
-{% lorem 5 p %}
+	</ul>
+{% endfor %}
+</ul>
 {% endblock %} 

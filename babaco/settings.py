@@ -115,7 +115,7 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     #'C:\\Users\\luca.dutto\\workspace\\babaco\\src\\babaco\\templates',
-    os.path.join(DIRNAME,'templates'),
+    os.path.join(DIRNAME, 'templates'),
 )
 
 INSTALLED_APPS = (

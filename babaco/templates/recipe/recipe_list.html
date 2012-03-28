@@ -7,7 +7,7 @@
 <h1>Elenco ricette disponibili</h1>
 
 
-	{% for l in list %}
+	{% for l in recipe_list %}
 		<p>ricetta {{ l.name }} - {{ l.ins_date|date:"d/m/Y G:i:s"  }} <a href="{{ l.get_absolute_url }}">LINK</a></p>
 	
 		{% empty %}
